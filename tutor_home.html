@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import bar, spark %}
+{% block title %}{{ t('Tableau de bord') }}{% endblock %}
+{% block content %}
+<h1>{{ ws.name }}</h1>
+<div class="grid">
+  <div class="card"><div class="kpi">{{ rows|length }}</div><div class="mut">{{ t('Élèves') }}</div></div>
+  <div class="card"><div class="kpi">{{ active }}</div><div class="mut">{{ t('Dernière activité') }} ≤ 7 j</div></div>
+  <div class="card"><div class="kpi">{{ (avg*100)|round|int }}%</div><div class="mut">{{ t('Précision') }} ({{ t('Moyenne') }})</div></div>
+  <div class="card"><div class="mut">{{ t('Code élèves') }}</div><p><span class="code">{{ ws.join_code }}</span></p>
+    <div class="mut">{{ t('Code tuteurs') }}</div><p><span class="code">{{ ws.tutor_code }}</span></p></div>
+</div>
+<div class="grid">
+  <div class="card"><h3>{{ t('Élèves à surveiller') }}</h3>
+    {% for r in attention %}<p><a href="/students/{{ r.student.id }}">{{ r.student.name }}</a>
+      {% if r.overall.struggling %}<span class="pill struggling">{{ t('En difficulté') }} ×{{ r.overall.struggling }}</span>{% endif %}
+      <span class="mut">· {{ r.last|ago }}</span></p>{% else %}<p class="mut">—</p>{% endfor %}</div>
+  <div class="card"><h3>{{ t('Activité en direct') }}</h3>
+    <ul class="feed" id="live-feed">{% for a, ex, st in feed %}<li>{{ '✔' if a.correct else '✘' }} {{ st.name }} — {{ ex.statement[:60] }} <span class="mut">· {{ a.created_at|ago }}</span></li>{% endfor %}</ul></div>
+</div>
+<h2>{{ t('Mes élèves') }}</h2>
+<div class="card tw"><table>
+  <tr><th>{{ t('Nom') }}</th><th>{{ t('Niveau') }}</th><th>{{ t('Exercices réussis') }}</th><th>{{ t('Dernière activité') }}</th><th></th></tr>
+  {% for r in rows %}<tr><td><a href="/students/{{ r.student.id }}">{{ r.student.name }}</a></td><td>{{ r.level.name if r.level else '—' }}</td>
+    <td>{{ r.overall.solved }}/{{ r.overall.total }}{{ bar(r.overall.completion) }}</td><td>{{ r.last|ago }}</td><td>{{ spark(r.activity) }}</td></tr>
+  {% else %}<tr><td colspan="5" class="mut">—</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

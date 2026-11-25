@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import bar, status, spark, csrf %}
+{% block title %}{{ s.name }}{% endblock %}
+{% block content %}
+<h1>{{ s.name }}</h1>
+<p class="mut">{% if level %}{{ level.name }} · {% endif %}{{ s.email }}</p>
+<div class="grid">
+  <div class="card"><div class="kpi">{{ overall.solved }}/{{ overall.total }}</div><div class="mut">{{ t('Exercices réussis') }}</div>{{ bar(overall.completion) }}</div>
+  <div class="card"><div class="kpi">{{ (overall.accuracy*100)|round|int }}%</div><div class="mut">{{ t('Précision') }}</div></div>
+  <div class="card"><div class="mut">{{ t('Activité des 14 derniers jours') }}</div>{{ spark(activity) }}</div>
+</div>
+<h2>{{ t('Progression par chapitre') }}</h2>
+<div class="card tw"><table>
+  <tr><th>{{ t('Chapitre') }}</th><th>{{ t('Exercices réussis') }}</th><th>{{ t('Précision') }}</th><th>{{ t('Statut') }}</th></tr>
+  {% for p in progress %}<tr {% if highlight == p.chapter.id %}style="background:var(--bg)"{% endif %}>
+    <td>{{ p.chapter.title }}</td><td>{{ p.solved }}/{{ p.total }}</td><td>{{ (p.accuracy*100)|round|int }}%</td><td>{{ status(p.status, t) }}</td></tr>{% endfor %}
+</table></div>
+<div class="grid">
+  <div class="card"><h3>{{ t('Dernières tentatives') }}</h3><ul class="feed">
+    {% for a, ex in attempts %}<li>{{ '✔' if a.correct else '✘' }} {{ ex.statement[:70] }} <span class="mut">· {{ a.created_at|ago }}</span></li>{% else %}<li class="mut">—</li>{% endfor %}</ul></div>
+  <div class="card"><h3>{{ t('Dernières questions posées au tuteur IA') }}</h3><ul class="feed">
+    {% for q in questions %}<li>{{ q.content[:90] }} <span class="mut">· {{ q.created_at|ago }}</span></li>{% else %}<li class="mut">—</li>{% endfor %}</ul></div>
+</div>
+{% if user.is_staff %}
+<div class="grid">
+  <div class="card"><h3>{{ t('Envoyer un message aux parents') }}</h3>
+    <form method="post" action="/students/{{ s.id }}/note">{{ csrf() }}<label>{{ t('Message') }}</label><textarea name="message" rows="3" required maxlength="1000"></textarea><p><button type="submit">{{ t('Envoyer') }}</button></p></form>
+    {% for p in parents %}<span class="mut">{{ p.name }}</span><br>{% endfor %}</div>
+  <div class="card"><h3>{{ t('Assigner à une classe') }}</h3>
+    {% for r in rooms %}<form method="post" action="/students/{{ s.id }}/classroom" class="row" style="margin:4px 0">{{ csrf() }}
+      <input type="hidden" name="classroom_id" value="{{ r.id }}"><span>{{ r.name }}</span>
+      {% if r.id in member_of %}<input type="hidden" name="action" value="remove"><button class="alt" type="submit">{{ t('Supprimer') }}</button>
+      {% else %}<input type="hidden" name="action" value="add"><button type="submit">{{ t('Ajouter') }}</button>{% endif %}</form>
+    {% else %}<p class="mut">—</p>{% endfor %}</div>
+</div>
+{% endif %}
+{% endblock %}

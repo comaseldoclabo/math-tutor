@@ -1,0 +1,7 @@
+{% macro bar(p) %}<div class="bar" role="progressbar" aria-valuenow="{{ (p*100)|round|int }}" aria-valuemin="0" aria-valuemax="100"><span style="width:{{ (p*100)|round|int }}%"></span></div>{% endmacro %}
+
+{% macro status(s, t) %}<span class="pill {{ s }}">{{ {'new': t('Non commencé'), 'progress': t('En cours'), 'struggling': t('En difficulté'), 'mastered': t('Maîtrisé')}[s] }}</span>{% endmacro %}
+
+{% macro spark(values) %}{% set m = (values|max) or 1 %}<svg class="spark" viewBox="0 0 140 34" preserveAspectRatio="none" role="img" aria-label="activité">{% for v in values %}<rect x="{{ loop.index0 * 10 }}" y="{{ 32 - (v / m * 30) }}" width="8" height="{{ (v / m * 30) + 2 }}" fill="currentColor" opacity="{{ 0.35 if v == 0 else 0.9 }}" rx="1"/>{% endfor %}</svg>{% endmacro %}
+
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token }}">{% endmacro %}

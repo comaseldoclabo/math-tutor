@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>{{ t('Suivi instantané des élèves, pour les tuteurs et les parents') }}</h1>
+  <p>{{ t("Un tuteur de maths IA qui s'appuie sur VOS cours, vérifie chaque calcul et prévient les parents et les tuteurs en temps réel.") }}</p>
+  <a class="btn" href="/register">{{ t('Créer un compte') }}</a>
+  <a class="btn alt" href="/login">{{ t('Connexion') }}</a>
+</section>
+<div class="grid">
+  <div class="card"><h3>{{ t('Programme local') }}</h3><p class="mut">Pays → niveau → chapitres : chaque élève travaille sur le programme de son pays.</p></div>
+  <div class="card"><h3>{{ t('Calcul vérifié') }}</h3><p class="mut">Un moteur de calcul formel contrôle les réponses et les résultats de l'IA.</p></div>
+  <div class="card"><h3>{{ t('Suivi en temps réel') }}</h3><p class="mut">Tuteurs et parents voient l'activité et reçoivent les alertes de difficulté.</p></div>
+  <div class="card"><h3>{{ t('Léger et hors ligne') }}</h3><p class="mut">Pages légères, installable sur téléphone, réponses sauvegardées sans réseau.</p></div>
+</div>
+{% endblock %}

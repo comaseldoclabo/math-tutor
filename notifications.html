@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Notifications') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Notifications') }}</h1>
+{% if items %}<form method="post" action="/notifications/read">{{ csrf() }}<button class="alt" type="submit">{{ t('Tout marquer comme lu') }}</button></form>{% endif %}
+<div class="card"><ul class="feed">
+{% for n in items %}<li {% if not n.is_read %}style="font-weight:600"{% endif %}>{% if n.url %}<a href="{{ n.url }}">{{ n.title }}</a>{% else %}{{ n.title }}{% endif %}
+  <span class="mut" style="font-weight:400">{{ n.body }} · {{ n.created_at|ago }}</span></li>
+{% else %}<li class="mut">{{ t('Aucune notification.') }}</li>{% endfor %}</ul></div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ chapter.title }}{% endblock %}
+{% block content %}
+<p class="mut"><a href="/curriculum?country={{ level.country_code }}">{{ t('Programmes') }}</a> › {{ level.name }}</p>
+<h1>{{ chapter.title }}</h1>
+<p class="mut">{{ chapter.description }}</p>
+{% if docs %}<div class="card"><h3>{{ t('Sources') }}</h3><ul>{% for d in docs %}<li><a href="/documents/{{ d.id }}">{{ d.title }}</a></li>{% endfor %}</ul></div>{% endif %}
+<h2>{{ t('Exercices') }}</h2>
+<div class="card">
+{% for ex in exercises %}
+  <div class="ex">
+    <div>{{ loop.index }}. {{ ex.statement }} {% if ex.id in solved %}<span class="pill mastered">✔</span>{% endif %}</div>
+    {% if user.role == 'student' %}
+    <form class="ex-form" data-ex="{{ ex.id }}"><div class="row"><input name="answer" placeholder="{{ t('Réponse') }}" autocomplete="off" aria-label="{{ t('Réponse') }}"><button type="submit">{{ t('Valider') }}</button></div>
+      <div class="res" role="status"></div><div class="hint mut" hidden></div></form>
+    {% else %}<div class="mut">{{ t('Réponse attendue') }} : <span class="code">{{ ex.answer }}</span></div>{% endif %}
+  </div>
+{% else %}<p class="mut">—</p>{% endfor %}
+</div>
+{% endblock %}

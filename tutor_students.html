@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import bar, spark %}
+{% block title %}{{ t('Élèves') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Élèves') }}</h1>
+<p class="mut">{{ t('Code élèves') }} : <span class="code">{{ ws.join_code }}</span></p>
+<div class="card tw"><table>
+  <tr><th>{{ t('Nom') }}</th><th>{{ t('Niveau') }}</th><th>{{ t('Exercices réussis') }}</th><th>{{ t('Précision') }}</th><th>{{ t('Dernière activité') }}</th><th></th></tr>
+  {% for r in rows %}<tr><td><a href="/students/{{ r.student.id }}">{{ r.student.name }}</a></td><td>{{ r.level.name if r.level else '—' }}</td>
+    <td>{{ r.overall.solved }}/{{ r.overall.total }}</td><td>{{ (r.overall.accuracy*100)|round|int }}%</td><td>{{ r.last|ago }}</td><td>{{ spark(r.activity) }}</td></tr>
+  {% else %}<tr><td colspan="6" class="mut">—</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

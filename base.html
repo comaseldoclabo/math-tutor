@@ -1,0 +1,54 @@
+{% from "_macros.html" import csrf %}<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if rtl else 'ltr' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}{{ app_name }}{% endblock %}</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0f766e">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<link rel="icon" href="/static/icon-192.png">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body data-auth="{{ 1 if user else 0 }}">
+<header class="top">
+  <a class="brand" href="/">{{ app_name }}</a>
+  {% if user %}
+  <nav>
+    <a href="/dashboard">{{ t('Tableau de bord') }}</a>
+    {% if user.role == 'student' %}
+      <a href="/chat">{{ t('Tuteur IA') }}</a><a href="/curriculum">{{ t('Programmes') }}</a>
+    {% elif user.role == 'parent' %}
+      <a href="/curriculum">{{ t('Programmes') }}</a>
+    {% else %}
+      <a href="/tutor/students">{{ t('Élèves') }}</a><a href="/tutor/classes">{{ t('Classes') }}</a>
+      <a href="/tutor/docs">{{ t('Cours (RAG)') }}</a><a href="/tutor/exercises">{{ t('Exercices') }}</a>
+      <a href="/tutor/crm">{{ t('Prospects (CRM)') }}</a><a href="/chat">{{ t('Tuteur IA') }}</a>
+      <a href="/curriculum">{{ t('Programmes') }}</a>
+      {% if user.can_manage %}<a href="/admin">{{ t('Administration') }}</a>{% endif %}
+    {% endif %}
+  </nav>
+  {% else %}<nav></nav>{% endif %}
+  <div class="right">
+    {% for l in langs %}{% if l != lang %}<a href="/lang/{{ l }}" title="{{ t('Langue') }}">{{ l|upper }}</a>{% endif %}{% endfor %}
+    {% if user %}
+      <a class="bell" href="/notifications" aria-label="{{ t('Notifications') }}">&#128276;<span class="badge" id="bell-badge" hidden>0</span></a>
+      <form class="inline" method="post" action="/logout">{{ csrf() }}<button class="link" type="submit">{{ t('Déconnexion') }}</button></form>
+    {% else %}
+      <a href="/login">{{ t('Connexion') }}</a><a class="btn" href="/register">{{ t('Créer un compte') }}</a>
+    {% endif %}
+  </div>
+</header>
+<main class="wrap">
+  {% for kind, msg in flashes %}<div class="flash {{ 'err' if kind == 'err' else '' }}" role="status">{{ t(msg) }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<script>window.I18N={{ {
+  "Correct !": t("Correct !"), "Pas encore. Réessaie.": t("Pas encore. Réessaie."), "Indice": t("Indice"),
+  "Enregistré hors ligne, envoi dès le retour du réseau.": t("Enregistré hors ligne, envoi dès le retour du réseau."),
+  "Vérifié par le moteur de calcul": t("Vérifié par le moteur de calcul"), "Sources": t("Sources"),
+  "Vous êtes hors ligne": t("Vous êtes hors ligne") }|tojson }};</script>
+<script src="/static/app.js" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

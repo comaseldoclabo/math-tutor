@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Cours (RAG)') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Cours (RAG)') }}</h1>
+<p class="mut">Les cours importés ici sont indexés : le tuteur IA de vos élèves s'appuie dessus et cite ses sources. Seuls les membres de votre espace y ont accès.</p>
+<div class="card"><h3>{{ t('Importer un cours (PDF, TXT, MD)') }}</h3>
+  <form method="post" action="/tutor/docs" enctype="multipart/form-data">{{ csrf() }}
+    <label>{{ t('Titre') }}</label><input name="title" required maxlength="200">
+    <div class="row">
+      <div><label>{{ t('Pays') }}</label><select name="country_code"><option value="">—</option>{% for c in countries %}<option value="{{ c.code }}" {{ 'selected' if c.code == ws.country_code }}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div><label>{{ t('Niveau') }}</label><select name="level_id"><option value="">—</option>{% for l in levels %}<option value="{{ l.id }}">{{ l.country_code }} · {{ l.name }}</option>{% endfor %}</select></div>
+    </div>
+    <label>{{ t('Fichier') }}</label><input type="file" name="file" accept=".pdf,.txt,.md,.csv" required>
+    <p><button type="submit">{{ t('Importer') }}</button></p></form></div>
+<div class="card tw"><table>
+  <tr><th>{{ t('Titre') }}</th><th>{{ t('Source') }}</th><th>#</th><th></th></tr>
+  {% for d in items %}<tr><td><a href="/documents/{{ d.id }}">{{ d.title }}</a></td><td>{{ d.source }}</td><td>{{ counts.get(d.id, 0) }}</td>
+    <td><form class="inline" method="post" action="/tutor/docs/{{ d.id }}/delete">{{ csrf() }}<button class="danger" type="submit">{{ t('Supprimer') }}</button></form></td></tr>
+  {% else %}<tr><td colspan="4" class="mut">—</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

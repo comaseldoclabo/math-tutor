@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Connexion') }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:20px auto">
+  <h1>{{ t('Connexion') }}</h1>
+  <form method="post" action="/login">{{ csrf() }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <label for="email">{{ t('Email') }}</label><input id="email" name="email" type="email" required autocomplete="username">
+    <label for="pw">{{ t('Mot de passe') }}</label><input id="pw" name="password" type="password" required autocomplete="current-password">
+    <p><button type="submit">{{ t('Connexion') }}</button></p>
+  </form>
+  <p class="mut"><a href="/register">{{ t('Créer un compte') }}</a></p>
+</div>
+{% endblock %}

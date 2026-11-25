@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Classes') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Classes') }}</h1>
+<div class="card"><form method="post" action="/tutor/classes">{{ csrf() }}<div class="row">
+  <div><label>{{ t('Nom') }}</label><input name="name" required maxlength="120"></div>
+  <div><label>{{ t('Niveau') }}</label><select name="level_id"><option value="">—</option>{% for l in levels %}<option value="{{ l.id }}">{{ l.country_code }} · {{ l.name }}</option>{% endfor %}</select></div>
+  <button type="submit">{{ t('Créer') }}</button></div></form></div>
+{% for r in rooms %}<div class="card"><h3>{{ r.name }}</h3>
+  {% for m in members[r.id] %}<a href="/students/{{ m.id }}">{{ m.name }}</a>{{ ' · ' if not loop.last }}{% else %}<span class="mut">—</span>{% endfor %}</div>{% endfor %}
+{% endblock %}

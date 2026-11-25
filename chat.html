@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ t('Tuteur IA') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Tuteur IA') }}</h1>
+<p class="mut">{{ t("Questions IA aujourd'hui") }} : <b id="quota">{{ used }} / {{ quota }}</b>
+{% if not ai_on %} · <span title="ANTHROPIC_API_KEY">mode sans IA</span>{% endif %}</p>
+<div class="card">
+  <div class="chat" id="chat-box" aria-live="polite">
+    {% for m in history %}
+      <div class="msg {{ m.role }}">{{ m.content }}{% if m.role == 'assistant' and m.verified %}{% set v = loads(m.verified) %}<span class="tag">✔ {{ t('Vérifié par le moteur de calcul') }} : {{ v.solutions|join(' ; ') if v.solutions else (v.value if v.value is defined else v.truth) }}</span>{% endif %}
+      {% if m.role == 'assistant' and m.sources != '[]' %}<span class="src">{{ t('Sources') }} : {% for s in loads(m.sources) %}[{{ s.n }}] {{ s.title }}{{ ' · ' if not loop.last }}{% endfor %}</span>{% endif %}</div>
+    {% endfor %}
+  </div>
+  <form id="chat-form" style="margin-top:8px"><div class="row">
+    <textarea rows="2" maxlength="2000" placeholder="{{ t('Écris ta question de maths…') }}" aria-label="{{ t('Message') }}"></textarea>
+    <button type="submit">{{ t('Envoyer') }}</button></div></form>
+</div>
+{% endblock %}

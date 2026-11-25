@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t('Programmes') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Programmes') }}</h1>
+<form method="get" class="row" style="max-width:360px"><div><label>{{ t('Pays') }}</label>
+  <select name="country" onchange="this.form.submit()">{% for c in countries %}<option value="{{ c.code }}" {{ 'selected' if current and c.code == current.code }}>{{ c.name }}</option>{% endfor %}</select></div></form>
+{% if current %}<p class="mut">{{ current.system_name }} · /{{ current.grading_max }}</p>{% endif %}
+{% for l in levels %}
+<div class="card"><h3>{{ l.name }} <span class="mut">· {{ l.stage }}</span></h3>
+  <ul>{% for c in by_level.get(l.id, []) %}<li><a href="/chapters/{{ c.id }}">{{ c.title }}</a></li>{% else %}<li class="mut">—</li>{% endfor %}</ul></div>
+{% else %}<p class="mut">—</p>{% endfor %}
+{% endblock %}

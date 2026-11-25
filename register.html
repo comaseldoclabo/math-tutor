@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Créer un compte') }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px;margin:20px auto">
+  <h1>{{ t('Créer un compte') }}</h1>
+  <form method="post" action="/register">{{ csrf() }}
+    <label for="role-select">{{ t('Je suis') }}</label>
+    <select id="role-select" name="role">
+      <option value="student">{{ t('Élève') }}</option>
+      <option value="parent">{{ t('Parent') }}</option>
+      <option value="tutor">{{ t('Tuteur / répétiteur') }}</option>
+      <option value="admin">{{ t('École / centre') }}</option>
+    </select>
+    <label for="name">{{ t('Nom complet') }}</label><input id="name" name="name" required maxlength="120">
+    <label for="email">{{ t('Email') }}</label><input id="email" name="email" type="email" required autocomplete="username">
+    <label for="pw">{{ t('Mot de passe') }} (8+)</label><input id="pw" name="password" type="password" minlength="8" required autocomplete="new-password">
+    <div class="row">
+      <div><label for="country-select">{{ t('Pays') }}</label>
+        <select id="country-select" name="country_code"><option value="">—</option>
+          {% for c in countries %}<option value="{{ c.code }}">{{ c.name }}</option>{% endfor %}</select></div>
+      <div data-roles="student"><label for="level-select">{{ t('Niveau') }}</label><select id="level-select" name="level_id"></select></div>
+    </div>
+    <div data-roles="student"><label for="c1">{{ t("Code d'invitation (facultatif)") }}</label><input id="c1" name="code" placeholder="ELV-XXXXXX" autocapitalize="characters"></div>
+    <div data-roles="tutor admin" hidden><label>{{ t("Code d'invitation (facultatif)") }} (TUT-…)</label><input name="code" disabled placeholder="TUT-XXXXXX"></div>
+    <div data-roles="tutor admin" hidden><label>{{ t("Nom de l'espace de travail") }}</label><input name="workspace_name" maxlength="120"></div>
+    <div data-roles="parent" hidden><label>{{ t("Code de l'enfant (facultatif)") }}</label><input name="code" disabled placeholder="E-XXXXXX" autocapitalize="characters"></div>
+    <label for="phone">{{ t('Téléphone / WhatsApp') }}</label><input id="phone" name="phone" type="tel" placeholder="+229…">
+    <label style="display:flex;gap:8px;align-items:center"><input style="width:auto" type="checkbox" name="whatsapp" value="1"> {{ t('Recevoir les alertes sur WhatsApp') }}</label>
+    <p><button type="submit">{{ t('Créer un compte') }}</button></p>
+  </form>
+</div>
+<script type="application/json" id="levels-data">{{ levels_by_country|tojson }}</script>
+<script>
+/* un seul champ "code" doit être actif selon le rôle */
+(function(){var rs=document.getElementById('role-select');function sync(){document.querySelectorAll('[data-roles] input[name=code]').forEach(function(i){i.disabled=i.closest('[data-roles]').hidden;});}
+rs.addEventListener('change',function(){setTimeout(sync,0)});window.addEventListener('load',function(){setTimeout(sync,0)});})();
+</script>
+{% endblock %}

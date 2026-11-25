@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_macros.html" import bar, spark, csrf %}
+{% block title %}{{ t('Mes enfants') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Mes enfants') }}</h1>
+{% for c in cards %}
+<div class="card">
+  <div class="row"><h2 style="margin:0"><a href="/students/{{ c.child.id }}">{{ c.child.name }}</a></h2>
+  <span class="mut">{{ t('Dernière activité') }} : {{ c.last|ago }}</span></div>
+  <div class="grid" style="margin-top:8px">
+    <div><div class="kpi">{{ c.overall.solved }}/{{ c.overall.total }}</div><div class="mut">{{ t('Exercices réussis') }}</div>{{ bar(c.overall.completion) }}</div>
+    <div><div class="kpi">{{ (c.overall.accuracy*100)|round|int }}%</div><div class="mut">{{ t('Précision') }}</div></div>
+    <div>{{ spark(c.activity) }}</div>
+  </div>
+  {% for p in c.struggling %}<p><span class="pill struggling">{{ t('En difficulté') }}</span> {{ p.chapter.title }}</p>{% endfor %}
+</div>
+{% else %}<p class="mut">{{ t('Aucun enfant lié pour le moment.') }}</p>{% endfor %}
+<div class="card"><h3>{{ t('Lier un enfant') }}</h3>
+  <form method="post" action="/parent/link">{{ csrf() }}<div class="row"><input name="code" placeholder="E-XXXXXX" required aria-label="{{ t("Code de l'enfant") }}"><button type="submit">{{ t('Lier') }}</button></div></form></div>
+{% endblock %}

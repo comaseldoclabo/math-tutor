@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Prospects (CRM)') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Prospects (CRM)') }}</h1>
+<div class="card"><form method="post" action="/tutor/crm"><div class="row">{{ csrf() }}
+  <div><label>{{ t('Nom') }}</label><input name="name" required></div>
+  <div><label>{{ t('Contact') }}</label><input name="contact"></div>
+  <div><label>{{ t('Niveau') }}</label><input name="child_level"></div>
+  <div><label>{{ t('Source') }}</label><input name="source"></div>
+  <button type="submit">{{ t('Ajouter') }}</button></div>
+  <label>{{ t('Notes') }}</label><input name="notes"></form></div>
+<div class="kan">
+{% set labels = {'new': t('Nouveau'), 'contacted': t('Contacté'), 'trial': t('Essai'), 'enrolled': t('Inscrit'), 'lost': t('Perdu')} %}
+{% for s in statuses %}<div class="col"><h3>{{ labels[s] }} ({{ columns[s]|length }})</h3>
+  {% for l in columns[s] %}<div class="lead"><b>{{ l.name }}</b><br><span class="mut">{{ l.contact }} {{ '· ' ~ l.child_level if l.child_level }} {{ '· ' ~ l.source if l.source }}</span>
+    {% if l.notes %}<br>{{ l.notes }}{% endif %}
+    <form method="post" action="/tutor/crm/{{ l.id }}" class="row" style="margin-top:6px">{{ csrf() }}
+      <select name="status" onchange="this.form.submit()" aria-label="{{ t('Statut') }}">{% for o in statuses %}<option value="{{ o }}" {{ 'selected' if o == l.status }}>{{ labels[o] }}</option>{% endfor %}</select></form>
+    <form class="inline" method="post" action="/tutor/crm/{{ l.id }}/delete">{{ csrf() }}<button class="link" type="submit">{{ t('Supprimer') }}</button></form></div>{% endfor %}
+</div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import bar, status, spark, csrf %}
+{% block title %}{{ t('Tableau de bord') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Bienvenue') }}, {{ user.name }}</h1>
+<div class="grid">
+  <div class="card"><div class="kpi">{{ overall.solved }}/{{ overall.total }}</div><div class="mut">{{ t('Exercices réussis') }}</div>{{ bar(overall.completion) }}</div>
+  <div class="card"><div class="kpi">{{ (overall.accuracy*100)|round|int }}%</div><div class="mut">{{ t('Précision') }}</div></div>
+  <div class="card"><div class="kpi">{{ used }}/{{ quota }}</div><div class="mut">{{ t("Questions IA aujourd'hui") }}</div><a class="btn" style="margin-top:8px" href="/chat">{{ t('Tuteur IA') }}</a></div>
+  <div class="card"><div class="mut">{{ t('Activité des 14 derniers jours') }}</div>{{ spark(activity) }}</div>
+</div>
+
+{% if not level %}
+<div class="card"><h2>{{ t('Niveau') }}</h2>
+<form method="post" action="/student/profile">{{ csrf() }}
+  <div class="row">
+    <div><label>{{ t('Pays') }}</label><select name="country_code" onchange="this.form.level_id.value='';this.form.submit()"><option value="">—</option>{% for c in countries %}<option value="{{ c.code }}" {{ 'selected' if c.code == user.country_code }}>{{ c.name }}</option>{% endfor %}</select></div>
+    <div><label>{{ t('Niveau') }}</label><select name="level_id"><option value="">—</option>{% for l in levels %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}</select></div>
+    <input type="hidden" name="phone" value="{{ user.phone }}"><button type="submit">{{ t('Enregistrer') }}</button>
+  </div></form></div>
+{% else %}
+<h2>{{ t('Progression par chapitre') }} — {{ level.name }}</h2>
+<div class="card tw"><table>
+  <tr><th>{{ t('Chapitre') }}</th><th>{{ t('Exercices réussis') }}</th><th>{{ t('Précision') }}</th><th>{{ t('Statut') }}</th></tr>
+  {% for p in progress %}
+  <tr><td><a href="/chapters/{{ p.chapter.id }}">{{ p.chapter.title }}</a></td>
+      <td>{{ p.solved }}/{{ p.total }}{{ bar((p.solved / p.total) if p.total else 0) }}</td>
+      <td>{{ (p.accuracy*100)|round|int }}%</td><td>{{ status(p.status, t) }}</td></tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+
+<div class="grid">
+  <div class="card"><h3>{{ t('Mon code de liaison (à donner à mon parent)') }}</h3><p><span class="code">{{ user.link_code }}</span></p></div>
+  <div class="card"><h3>{{ t('Rejoindre un tuteur / centre') }}</h3>
+    {% if workspace %}<p>{{ workspace.name }}{% for tu in tutors %}<br><span class="mut">{{ tu.name }}</span>{% endfor %}</p>
+    {% else %}<form method="post" action="/student/join">{{ csrf() }}<div class="row"><input name="code" placeholder="ELV-XXXXXX" required><button type="submit">{{ t('Rejoindre') }}</button></div></form>{% endif %}
+  </div>
+</div>
+{% if recent %}<div class="card"><h3>{{ t('Notifications') }}</h3><ul class="feed">{% for n in recent %}<li><b>{{ n.title }}</b> <span class="mut">{{ n.body }}</span></li>{% endfor %}</ul></div>{% endif %}
+{% endblock %}

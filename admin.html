@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ t('Administration') }}{% endblock %}
+{% block content %}
+<h1>{{ t('Administration') }} — {{ ws.name }}</h1>
+<div class="grid">
+  <div class="card"><div class="mut">{{ t('Plan actuel') }}</div><div class="kpi">{{ current_plan.name }}</div>
+    <div class="mut">{{ t("Valable jusqu'au") }} : {{ ws.plan_until|dt('%d/%m/%Y') if (ws.plan_until and valid) else '—' }}</div>
+    <div class="mut">{{ t('Élèves') }} : {{ n_students }}/{{ current_plan.max_students }}</div></div>
+  <div class="card"><div class="mut">{{ t('Code élèves') }}</div><p><span class="code">{{ ws.join_code }}</span></p><div class="mut">{{ t('Code tuteurs') }}</div><p><span class="code">{{ ws.tutor_code }}</span></p></div>
+</div>
+<h2>Plans</h2>
+<div class="grid">
+{% for p in plans %}<div class="card"><h3>{{ p.name }}</h3>
+  <p class="mut">{{ p.max_students }} {{ t('Élèves')|lower }} · {{ p.ai_daily_quota }} {{ t('Questions IA aujourd\'hui')|lower }}</p>
+  <p class="kpi">{% set pm = p.price_map() %}{% if pm %}{{ pm.get(currency, pm.get('USD')) }} {{ currency if currency in pm else 'USD' }}<span class="mut" style="font-size:.9rem"> / 30 j</span>{% else %}0{% endif %}</p>
+  {% if p.code != 'free' and p.code != current_plan.code %}<form method="post" action="/admin/checkout">{{ csrf() }}<input type="hidden" name="plan_code" value="{{ p.code }}"><button type="submit">{{ t('Choisir ce plan') }}</button></form>{% endif %}
+</div>{% endfor %}
+</div>
+<h2>{{ t('Équipe') }}</h2>
+<div class="card tw"><table>
+  {% for m in members %}<tr><td>{{ m.name }}<br><span class="mut">{{ m.email }}</span></td><td>{{ m.role }}{{ ' ★' if m.is_owner }}</td>
+    <td>{% if m.id != user.id %}<form class="inline" method="post" action="/admin/members/{{ m.id }}/toggle">{{ csrf() }}<button class="alt" type="submit">{{ 'Désactiver' if m.is_active else 'Réactiver' }}</button></form>{% endif %}</td></tr>{% endfor %}
+</table></div>
+<h2>{{ t('Paiements') }}</h2>
+<div class="card tw"><table>
+  {% for p in pays %}<tr><td>{{ p.created_at|dt }}</td><td>{{ p.plan_code }}</td><td>{{ p.amount }} {{ p.currency }}</td><td>{{ p.provider }}</td><td>{{ p.status }}</td></tr>{% else %}<tr><td class="mut">—</td></tr>{% endfor %}
+</table></div>
+{% endblock %}
